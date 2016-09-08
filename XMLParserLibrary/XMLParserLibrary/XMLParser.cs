@@ -279,15 +279,21 @@ namespace XMLParserLibrary
             return RE_XML_TAG.Match(m_ProcString, pos);
         }
 
-        private XMLElement processDocument()
+        private XMLElement processDocument(bool checkPrologue = false)
         {
-            var match = RE_XML_ROOT.Match(m_ProcString);    // check prologue
-            if ( (!match.Success) || (match.Index > 0) )
-            {
-                Console.WriteLine("Invalid XML prologue.");
-            }
+            int startIndex = 0;
 
-            int startIndex = match.Index + match.Length;
+            if (checkPrologue)
+            {
+
+                var match = RE_XML_ROOT.Match(m_ProcString);    // check prologue
+                if ((!match.Success) || (match.Index > 0))
+                {
+                    Console.WriteLine("Invalid XML prologue.");
+                }
+
+                startIndex = match.Index + match.Length;
+            }
 
             Match rootTag = nextTagMatch(startIndex);
             startIndex = rootTag.Index;
@@ -307,11 +313,11 @@ namespace XMLParserLibrary
             return clearComments(input.Replace('\n',' ').Replace('\r', ' '));
         }
 
-        public XMLElement parse(string inputString)
+        public XMLElement parse(string inputString, bool checkPrologue = false)
         {
             this.m_ProcString = clearInput(inputString);
 
-            XMLElement doc = processDocument();
+            XMLElement doc = processDocument(checkPrologue);
             return doc;
         }
 
